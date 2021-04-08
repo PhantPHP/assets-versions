@@ -1,0 +1,20 @@
+{
+    "name": "phant/assets-versions",
+    "description": "get assets versions easily",
+    "license": "MIT",
+    "keywords": ["assets", "versions", "assets versions", "git assets versions", "assets cache auto-revocation"],
+    "authors": [
+        {
+            "name": "Lenny ROUANET",
+            "email": "lennyrouanet@users.noreply.github.com"
+        }
+    ],
+    "require": {
+        "php": "^7.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "Phant\\AssetsVersions\\": "src/AssetsVersions/"
+        }
+    }
+}
