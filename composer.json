@@ -16,6 +16,5 @@
         "psr-4": {
             "Phant\\AssetsVersions\\": "src/AssetsVersions/"
         }
-    },
-    "minimum-stability": "dev"
+    }
 }
