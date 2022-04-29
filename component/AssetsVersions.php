@@ -3,25 +3,32 @@ declare(strict_types=1);
 
 namespace Phant\AssetsVersions;
 
+use Psr\SimpleCache\CacheInterface;
 use Phant\AssetsVersions\Exception\{
 	PathToBeProcessedDoesNotExist,
 };
-use Phant\AssetsVersions\ValueObject\{
+use Phant\AssetsVersions\DataStructure\{
 	AssetVersion,
 	AssetVersionCollection,
 };
 
-final class AssetsVersions
+class AssetsVersions
 {
-	private string $pathToBeProcessed;
-	private array $extensionsToBeProcessed;
-	private ?array $pathsToBeIgnored;
-	protected $callbackLoadCache;
-	protected $callbackSaveCache;
+	const CACHE_ITEM = 'assets-versions';
+	
+	protected string $pathToBeProcessed;
+	protected array $extensionsToBeProcessed;
+	protected ?array $pathsToBeIgnored;
+	protected ?CacheInterface $cacheAdapter;
 	
 	private AssetVersionCollection $assetVersionCollection;
 	
-	public function __construct( string $pathToBeProcessed, array $extensionsToBeProcessed = [ 'css', 'js' ], ?array $pathsToBeIgnored = null, ?callable $callbackLoadCache = null, ?callable $callbackSaveCache = null )
+	public function __construct(
+		string $pathToBeProcessed,
+		array $extensionsToBeProcessed = [ 'css', 'js' ],
+		?array $pathsToBeIgnored = null,
+		?CacheInterface $cacheAdapter = null
+		)
 	{
 		if ( !is_dir( $pathToBeProcessed ) ) {
 			throw new PathToBeProcessedDoesNotExist;
@@ -30,8 +37,7 @@ final class AssetsVersions
 		$this->pathToBeProcessed = $pathToBeProcessed;
 		$this->extensionsToBeProcessed = array_map( 'strtolower', $extensionsToBeProcessed );
 		$this->pathsToBeIgnored = $pathsToBeIgnored;
-		$this->callbackLoadCache = $callbackLoadCache;
-		$this->callbackSaveCache = $callbackSaveCache;
+		$this->cacheAdapter = $cacheAdapter;
 		
 		$this->assetVersionCollection = new AssetVersionCollection();
 		
@@ -57,7 +63,7 @@ final class AssetsVersions
 		return $assetPath;
 	}
 	
-	public function generate()
+	public function generate(): void
 	{
 		$assetPathList = $this->getAssetPathList();
 		
@@ -69,24 +75,24 @@ final class AssetsVersions
 		$this->saveToCache();
 	}
 	
-	private function loadFromCache()
+	private function loadFromCache(): void
 	{
-		if ( is_callable( $this->callbackLoadCache ) ) {
-			$assetVersionCollection = ( $this->callbackLoadCache )();
-			
-			if ( !is_a( $assetVersionCollection, get_class( $this->assetVersionCollection ) ) ) {
-				return;
-			}
-			
-			$this->assetVersionCollection = $assetVersionCollection;
+		if ( !$this->cacheAdapter ) return;
+		
+		$assetVersionCollection = $this->cacheAdapter->get( self::CACHE_ITEM );
+		
+		if ( !is_a( $assetVersionCollection, get_class( $this->assetVersionCollection ) ) ) {
+			return;
 		}
+		
+		$this->assetVersionCollection = $assetVersionCollection;
 	}
 	
-	private function saveToCache()
+	private function saveToCache(): void
 	{
-		if ( is_callable( $this->callbackSaveCache ) ) {
-			( $this->callbackSaveCache )( $this->assetVersionCollection );
-		}
+		if (!$this->cacheAdapter) return;
+		
+		$this->cacheAdapter->set( self::CACHE_ITEM , $this->assetVersionCollection );
 	}
 	
 	private function getFromPath( string $assetPath ): ?AssetVersion

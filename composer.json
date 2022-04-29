@@ -10,11 +10,19 @@
         }
     ],
     "require": {
-        "php": "^8.0"
+        "php": ">=8.0",
+        "phant/cache": "1.*",
+        "psr/simple-cache": "^3.0"
+    },
+    "require-dev": {
+        "phpstan/phpstan": "^1.4"
+    },
+    "scripts": {
+        "analyse": "vendor/bin/phpstan analyse component --memory-limit=4G"
     },
     "autoload": {
         "psr-4": {
-            "Phant\\AssetsVersions\\": "src/AssetsVersions/"
+            "Phant\\AssetsVersions\\": "component/"
         }
     }
 }

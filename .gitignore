@@ -1,0 +1,7 @@
+# Dependencies
+composer.lock
+vendor/*
+
+# Dev
+.DS_Store
+.nova/*

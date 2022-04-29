@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Phant\AssetsVersions\ValueObject;
+namespace Phant\AssetsVersions\DataStructure;
 
 final class AssetVersion
 {
