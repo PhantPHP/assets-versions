@@ -10,14 +10,15 @@
         }
     ],
     "require": {
-        "php": ">=8.0",
-        "phant/cache": "1.*",
-        "psr/simple-cache": "^3.0"
+        "php": ">=8.1",
+        "psr/simple-cache": "3.*"
     },
     "require-dev": {
-        "phpstan/phpstan": "^1.4"
+        "friendsofphp/php-cs-fixer": "3.*",
+        "phpstan/phpstan": "1.*"
     },
     "scripts": {
+        "lint": "vendor/bin/php-cs-fixer fix ./ --rules=@PSR12",
         "analyse": "vendor/bin/phpstan analyse component --memory-limit=4G"
     },
     "autoload": {
