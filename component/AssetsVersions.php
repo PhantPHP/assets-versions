@@ -109,25 +109,28 @@ class AssetsVersions
 
     private function getAssetVersionFromGitRevisions(string $assetPath): ?AssetVersion
     {
-        $command = sprintf('git log --oneline %s | wc -l', escapeshellarg($this->pathToBeProcessed . $assetPath));
-        $revision = exec($command);
+        $realPath = realpath($this->pathToBeProcessed . $assetPath);
+
+        $command = sprintf('git log --oneline %s | wc -l', escapeshellarg($realPath));
+        $revision = (int) exec($command);
 
         if (!$revision) {
             return null;
         }
 
-        return new AssetVersion($assetPath, AssetVersion::TYPE_VERSION, (int) $revision);
+        return new AssetVersion($assetPath, AssetVersion::TYPE_VERSION, $revision);
     }
 
     private function getAssetVersionFromFileUpdateTime(string $assetPath): ?AssetVersion
     {
-        $modificationTime = filemtime($this->pathToBeProcessed . $assetPath);
+        $realPath = realpath($this->pathToBeProcessed . $assetPath);
+        $modificationTime = (int) filemtime($realPath);
 
         if (!$modificationTime) {
             return null;
         }
 
-        return new AssetVersion($assetPath, AssetVersion::TYPE_MODIFICATION_TIME, (int) $modificationTime);
+        return new AssetVersion($assetPath, AssetVersion::TYPE_MODIFICATION_TIME, $modificationTime);
     }
 
     private function getAssetPathList(string $subpath = ''): array
