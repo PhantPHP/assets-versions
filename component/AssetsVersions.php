@@ -110,6 +110,10 @@ class AssetsVersions
     private function getAssetVersionFromGitRevisions(string $assetPath): ?AssetVersion
     {
         $realPath = realpath($this->pathToBeProcessed . $assetPath);
+        
+        if (!$realPath) {
+            return null;
+        }
 
         $command = sprintf('git log --oneline %s | wc -l', escapeshellarg($realPath));
         $revision = (int) exec($command);
@@ -124,6 +128,11 @@ class AssetsVersions
     private function getAssetVersionFromFileUpdateTime(string $assetPath): ?AssetVersion
     {
         $realPath = realpath($this->pathToBeProcessed . $assetPath);
+        
+        if (!$realPath) {
+            return null;
+        }
+        
         $modificationTime = (int) filemtime($realPath);
 
         if (!$modificationTime) {
